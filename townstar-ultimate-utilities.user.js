@@ -53,7 +53,6 @@
     if (craftedItemsStoredValue) {
         craftedItems = JSON.parse(craftedItemsStoredValue)
     }
-    console.log("TZANOU GM_getValue : ", craftedItems)
 
     var cssNode = document.createElement("link");
     cssNode.setAttribute("rel", "stylesheet");
@@ -178,6 +177,7 @@
         let closeIcon = document.createElement('i');
         closeIcon.classList.add('fa-solid');
         closeIcon.classList.add('fa-circle-xmark');
+        $(closeIcon).attr("title", "Close this window");
         $(closeIcon).css({
             "color": "rgb(254 94 94 / 65%)",
             "position": "absolute",
@@ -197,6 +197,7 @@
         dragIcon.classList.add('drag');
         dragIcon.classList.add('fa-solid');
         dragIcon.classList.add('fa-arrows-up-down-left-right');
+        $(dragIcon).attr("title", "Drag this window");
         $(dragIcon).css({
             "color": "rgb(254 94 94 / 65%)",
             "position": "absolute",
@@ -214,6 +215,7 @@
         reloadIcon.classList.add('reload');
         reloadIcon.classList.add('fa-solid');
         reloadIcon.classList.add('fa-arrow-rotate-right');
+        $(reloadIcon).attr("title", "Reset this data window");
         $(reloadIcon).css({
             "color": "rgb(254 94 94 / 65%)",
             "position": "absolute",
@@ -256,11 +258,9 @@
                 e.stopPropagation();
             },
             start: function (e) {
-                console.log('resize start : ', e)
                 $('#prodRateHud').css("maxHeight", "unset");
             },
             stop: function (e) {
-                console.log('resize start : ', e)
                 $('#prodRateHud').css("maxHeight", $('#prodRateHud').height());
             },
 
@@ -269,7 +269,6 @@
 
         $("#prodRateHud").bind('mousewheel DOMMouseScroll', function (event) {
             event.stopPropagation();
-            console.log("scrolled")
         });
 
         if (trackedItems && trackedItems.length > 0) {
@@ -328,9 +327,8 @@
 
             onArrive() {
                 super.onArrive();
-                //alert(Game.craftData.[this.craft.toUpperCase()].CityPrice)UiTools.getIconFileName(t)
-                console.log("tzanou", Game)
-                console.log("tzanou2", trackedItems)
+                // console.log("Game object", Game)
+                // console.log("tracked Items", trackedItems)
                 let trackedItem = trackedItems.find(item => item.item.toUpperCase() == this.craft.toUpperCase())
                 if (!trackedItem) {
                     let currentItem = Game.craftData[this.craft];
@@ -388,7 +386,6 @@
             imagePosition: "right",
             onSelected: function (selectedData) {
                 //callback function: do something with selectedData;
-                console.log(selectedData.selectedData.value)
                 craftedItems.push({ item: selectedData.selectedData.value, keepAmt: 0, sellMin: 0 },)
                 generateItemSelectedUl("#autoSellItemSelectedUl")
                 generateItemToAddInSellingList(false)
@@ -510,8 +507,8 @@
                 $(rangeKeepAmnt).on('input', function (event) {
                     event.stopPropagation();
                     $(this).next('.range-value').html(this.value);
-                    craftedItem.keepAmt = this.value
-                    console.log(craftedItems)
+                    craftedItem.keepAmt = parseInt(this.value)
+                    GM_setValue('craftedItem', JSON.stringify(craftedItems))
                 });
 
                 $(rangeKeepAmnt).on('mousedown', function (event) {
@@ -557,8 +554,8 @@
                 $(rangeSellMin).on('input', function (event) {
                     event.stopPropagation();
                     $(this).next('.range-value').html(this.value);
-                    craftedItem.sellMin = this.value
-                    console.log(craftedItems)
+                    craftedItem.sellMin = parseInt(this.value)
+                    GM_setValue('craftedItem', JSON.stringify(craftedItems))
                 });
 
                 $(rangeSellMin).on('mousedown', function (event) {
@@ -646,6 +643,7 @@
         let closeIcon = document.createElement('i');
         closeIcon.classList.add('fa-solid');
         closeIcon.classList.add('fa-circle-xmark');
+        $(closeIcon).attr("title", "Close this window");
         $(closeIcon).css({
             "color": "rgb(254 94 94 / 65%)",
             "position": "absolute",
@@ -665,6 +663,7 @@
         dragIcon.classList.add('drag');
         dragIcon.classList.add('fa-solid');
         dragIcon.classList.add('fa-arrows-up-down-left-right');
+        $(dragIcon).attr("title", "Drag this window");
         $(dragIcon).css({
             "color": "rgb(254 94 94 / 65%)",
             "position": "absolute",
@@ -692,6 +691,7 @@
         reloadIcon.classList.add('reload');
         reloadIcon.classList.add('fa-solid');
         reloadIcon.classList.add('fa-arrow-rotate-right');
+        $(reloadIcon).attr("title", "Reset this data window");
         $(reloadIcon).css({
             "color": "rgb(254 94 94 / 65%)",
             "position": "absolute",
@@ -731,7 +731,6 @@
         $("[name='switchAutoSell']").bootstrapSwitch({
             'state': isAutoSellActivated,
             'onSwitchChange': function (event, state) {
-                console.log('switched...', event, state)
                 isAutoSellActivated = state;
                 if (isAutoSellActivated)
                     $(".autoSellAlert").html("Auto Sell Activated")
@@ -792,11 +791,9 @@
                 e.stopPropagation();
             },
             start: function (e) {
-                console.log('resize start : ', e)
                 $('#autoSellHud').css("maxHeight", "unset");
             },
             stop: function (e) {
-                console.log('resize start : ', e)
                 $('#autoSellHud').css("maxHeight", $('#autoSellHud').height());
             },
 
@@ -804,7 +801,6 @@
 
         $("#autoSellHud").bind('mousewheel DOMMouseScroll', function (event) {
             event.stopPropagation();
-            console.log("scrolled")
         });
         $("body").on("click", ".deleteItemFromAutoSell", function () {
             let name = $(this).attr("data-name");
@@ -815,7 +811,6 @@
                     isDeleted = true;
                 }
             }
-            console.log(craftedItems)
             if (isDeleted) {
                 generateItemSelectedUl(item_selected_ul)
                 generateItemToAddInSellingList(false)
