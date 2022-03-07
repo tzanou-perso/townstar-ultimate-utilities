@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  A script for the town star gala game with a lot of features like auto sell a powerfull rate monitor and more ... it come with a pretty and easy to use interfaces
 // @author       Tzanou
-// @match        *://*.sandbox-games.com/*
+// @match        https://townstar.sandbox-games.com/launch
 // @require    https://code.jquery.com/jquery-3.6.0.js
 // @require    https://code.jquery.com/ui/1.13.1/jquery-ui.js
 // @require    https://cdn.rawgit.com/prashantchaudhary/ddslick/master/jquery.ddslick.min.js
