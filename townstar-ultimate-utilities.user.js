@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Townstar ultimate utilities
 // @namespace    http://tampermonkey.net/
-// @version      0.1.3
+// @version      0.1.2
 // @updateURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @downloadURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @description  A script for the town star gala game with a lot of features like auto sell a powerfull rate monitor and more ... it come with a pretty and easy to use interfaces
@@ -142,6 +142,7 @@
             "width": "fit-content",
             "background": "#00000029",
             "padding": "10px",
+            "zIndex": "9999999",
         })
 
         let autoSellStatus = document.createElement('div');
@@ -427,7 +428,24 @@
             $(trackedItemElemProdRate).css({
                 "font-size": "12px",
                 "font-weight": "800",
-                "margin-bottom": "5px",
+                "margin-left": "20px",
+            });
+            let moreFromProdRate = document.createElement('span');
+            $(moreFromProdRate).addClass("moreFromProdRate")
+            $(moreFromProdRate).attr("data-name", item.item);
+            $(moreFromProdRate).css({
+                "padding-right": "10px",
+                "margin-left": "auto",
+                "color": "rgb(254 94 94 / 65%)",
+            })
+            $(moreFromProdRate).html('<i style="color:rgb(254 94 94 / 65%);" class="fa-solid fa-caret-down">')
+
+            $("body").on("mouseenter", ".moreFromProdRate i", function () {
+                $(this).css("color", "rgb(254 94 94)");
+            });
+
+            $("body").on("mouseleave", ".moreFromProdRate i", function () {
+                $(this).css("color", "rgb(254 94 94 / 65%)");
             });
 
             let timeChooseMoney = document.createElement('div');
@@ -538,6 +556,7 @@
                 "flex-wrap": "wrap",
                 "align-items": "center",
                 "margin-bottom": "5px",
+                "display": "none",
             });
             $(trackedItemElemMoney).prepend(timeChooseMoney);
 
@@ -549,14 +568,28 @@
                 "display": "flex",
                 "flex-wrap": "wrap",
                 "align-items": "center",
+                "display": "none",
             });
             $(trackedItemElemPoint).prepend(timeChoosePoint);
 
             $(itemList).append(trackedItemElem);
+            $(trackedItemElemH1).append(trackedItemElemProdRate);
+            $(trackedItemElemH1).append(moreFromProdRate);
             $(trackedItemElem).append(trackedItemElemH1);
-            $(trackedItemElem).append(trackedItemElemProdRate);
             $(trackedItemElem).append(trackedItemElemMoney);
             $(trackedItemElem).append(trackedItemElemPoint);
+
+            let isOpen = false
+            $(moreFromProdRate).click(function () {
+                $(trackedItemElemMoney).toggle("slide", { direction: "up" }, 300)
+                $(trackedItemElemPoint).toggle("slide", { direction: "up" }, 300)
+                if (isOpen) {
+                    $("#tracked-item-" + item.item + " .moreFromProdRate i").animateRotate(0);
+                } else {
+                    $("#tracked-item-" + item.item + " .moreFromProdRate i").animateRotate(-180);
+                }
+                isOpen = !isOpen
+            })
 
 
         }
