@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name         Townstar ultimate utilities
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.1.3
+// @updateURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
+// @downloadURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @description  A script for the town star gala game with a lot of features like auto sell a powerfull rate monitor and more ... it come with a pretty and easy to use interfaces
 // @author       Tzanou
 // @match        *://*.sandbox-games.com/*
@@ -130,23 +132,101 @@
     let isAutoSellActivated = true;
     $(document).tooltip();
     async function hud(prod_rate_hud, auto_sell_hud) {
+        let autoSellStatusCont = document.createElement('div');
+        autoSellStatusCont.id = 'autosell-status-cont';
+        autoSellStatusCont.style.cssText = 'cursor: pointer; position: absolute; left: 25%;pointer-events: all;';
+        $(autoSellStatusCont).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+            "width": "fit-content",
+            "background": "#00000029",
+            "padding": "10px",
+        })
+
         let autoSellStatus = document.createElement('div');
         autoSellStatus.id = 'autosell-status';
-        autoSellStatus.style.cssText = 'pointer-events: all; position: absolute; left: 50%; transform: translate(-50%, 0);';
-
-        autoSellStatus.addEventListener('click', function () { this.children[0].textContent = 'Auto-Sell Monitor'; })
+        $(autoSellStatus).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+            "width": "fit-content",
+        })
         let autoSellContent = document.createElement('div');
-        autoSellContent.classList.add('bank');
-        autoSellContent.style.cssText = 'background-color: #fde7e3; padding-left: 10px; padding-right: 10px';
-        autoSellContent.textContent = 'Auto-Sell Monitor';
+        autoSellContent.style.cssText = 'background-color: unset; padding-left: 10px; padding-right: 10px;flex-basis: unset;font-size: 12px;color: white;';
+        autoSellContent.textContent = 'Open Auto-Sell Monitor';
+        $(autoSellContent).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+        })
+        let autoSellContentIcon = document.createElement('i');
+        autoSellContentIcon.classList.add('dragStatus');
+        autoSellContentIcon.classList.add('fa-solid');
+        autoSellContentIcon.classList.add('fa-arrow-up-right-from-square');
+        $(autoSellContentIcon).attr("title", "Open Auto-Sell Monitor");
+        $(autoSellContentIcon).css({
+            "color": "rgb(246 246 246)",
+            "fontSize": "16px",
+            "padding": "0 5px",
+        });
+        $(autoSellContentIcon).hover(function () {
+            $(this).css("color", "rgb(246 246 246)");
+        }, function () {
+            $(this).css("color", "rgb(246 246 246 / 77%)");
+        });
         let RateMonitorContent = document.createElement('div');
-        RateMonitorContent.classList.add('bank');
-        RateMonitorContent.style.cssText = 'background-color: #fde7e3; padding-left: 10px; padding-right: 10px';
+        RateMonitorContent.style.cssText = 'background-color: unset; padding-left: 10px; padding-right: 10px;flex-basis: unset;font-size: 12px;color: white;';
         RateMonitorContent.textContent = 'Open rate monitor';
+        let RateMonitorContentIcon = document.createElement('i');
+        RateMonitorContentIcon.classList.add('dragStatus');
+        RateMonitorContentIcon.classList.add('fa-solid');
+        RateMonitorContentIcon.classList.add('fa-arrow-up-right-from-square');
+        $(RateMonitorContentIcon).attr("title", "Open rate monitor");
+        $(RateMonitorContentIcon).css({
+            "color": "rgb(246 246 246)",
+            "fontSize": "16px",
+            "padding": "0 5px",
+        });
+        $(RateMonitorContentIcon).hover(function () {
+            $(this).css("color", "rgb(246 246 246)");
+        }, function () {
+            $(this).css("color", "rgb(246 246 246 / 77%)");
+        });
         await WaitForElement('.hud');
+
+        let dragStatus = document.createElement('i');
+        dragStatus.classList.add('dragStatus');
+        dragStatus.classList.add('fa-solid');
+        dragStatus.classList.add('fa-grip-vertical');
+        $(dragStatus).attr("title", "Drag this window");
+        $(dragStatus).css({
+            "color": "rgb(246 246 246 / 77%)",
+            "fontSize": "16px",
+            "padding": "0 5px",
+        });
+        $(dragStatus).hover(function () {
+            $(this).css("color", "rgb(246 246 246)");
+        }, function () {
+            $(this).css("color", "rgb(246 246 246 / 77%)");
+        });
+
+
+        $(autoSellContent).prepend(autoSellContentIcon);
+        $(RateMonitorContent).prepend(RateMonitorContentIcon);
         $(autoSellStatus).append(autoSellContent);
         $(autoSellStatus).append(RateMonitorContent);
-        document.querySelector('.hud').prepend(autoSellStatus);
+        $(autoSellStatusCont).append(dragStatus);
+        $(autoSellStatusCont).append(autoSellStatus);
+        document.querySelector('.hud').prepend(autoSellStatusCont);
+        await WaitForElement('#autosell-status');
+        $("#autosell-status-cont").draggable({
+            handle: ".dragStatus",
+            axis: "x",
+            drag: function (e) {
+                e.stopPropagation();
+            },
+        });
         $(RateMonitorContent).click(function () {
             $(prod_rate_hud).toggle();
         });
@@ -285,6 +365,7 @@
                 e.stopPropagation();
             }
         });
+
         $("#prodRateHud h1").css({
             "fontSize": "20px",
             "color": "rgb(254, 94, 94)",
