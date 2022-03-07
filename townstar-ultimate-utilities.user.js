@@ -133,6 +133,7 @@
         let autoSellStatus = document.createElement('div');
         autoSellStatus.id = 'autosell-status';
         autoSellStatus.style.cssText = 'pointer-events: all; position: absolute; left: 50%; transform: translate(-50%, 0);';
+
         autoSellStatus.addEventListener('click', function () { this.children[0].textContent = 'Auto-Sell Monitor'; })
         let autoSellContent = document.createElement('div');
         autoSellContent.classList.add('bank');
@@ -660,7 +661,7 @@
                 $(rangeKeepAmnt).attr("type", "range");
                 $(rangeKeepAmnt).attr("min", "0");
                 $(rangeKeepAmnt).attr("max", "200");
-                $(rangeKeepAmnt).attr("step", "10");
+                $(rangeKeepAmnt).attr("step", "1");
                 $(rangeKeepAmnt).attr("value", craftedItem.keepAmt ? craftedItem.keepAmt.toString() : "0");
                 let rangeKeepAmntValue = document.createElement('span');
                 $(rangeKeepAmntValue).addClass("range-value")
@@ -707,7 +708,7 @@
                 $(rangeSellMin).attr("type", "range");
                 $(rangeSellMin).attr("min", "0");
                 $(rangeSellMin).attr("max", "200");
-                $(rangeSellMin).attr("step", "10");
+                $(rangeSellMin).attr("step", "1");
                 $(rangeSellMin).attr("value", craftedItem.sellMin ? craftedItem.sellMin.toString() : "0");
                 let rangeSellMinValue = document.createElement('span');
                 $(rangeSellMinValue).addClass("range-value")
