@@ -11,9 +11,9 @@ A tampermonkey script for the town star gala game with a lot of features like au
 
 - click on the below script
 
-[![IMAGE ALT TEXT HERE](https://raw.githubusercontent.com/wiki/OpenUserJS/OpenUserJS.org/images/tampermonkey_icon.png)](https://github.com/Tzanou123/townstar-ultimate-utilities/blob/main/townstar-ultimate-utilities.js)
+[![IMAGE ALT TEXT HERE](https://raw.githubusercontent.com/wiki/OpenUserJS/OpenUserJS.org/images/tampermonkey_icon.png)](https://github.com/Tzanou123/townstar-ultimate-utilities/blob/main/townstar-ultimate-utilities.user.js)
 
-<a href="https://github.com/Tzanou123/townstar-ultimate-utilities/blob/main/townstar-ultimate-utilities.js">Click to install Townstar ultimate utilities</a>
+<a href="https://github.com/Tzanou123/townstar-ultimate-utilities/blob/main/townstar-ultimate-utilities.user.js">Click to install Townstar ultimate utilities</a>
 <small>(A userscript engine, like Tampermonkey, is required.)</small>
 
 - Thats it you can play to the game 
