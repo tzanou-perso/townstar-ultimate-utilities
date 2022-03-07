@@ -37,6 +37,10 @@
     const originalCraftedItems = craftedItems;
 
     const loader = document.createElement('div');
+
+    let getMoneyRate = "day";
+    let getPointRate = "day";
+
     loader.classList.add('loader');
     loader.classList.add('loader-bouncing');
     loader.classList.add('is-active');
@@ -53,6 +57,20 @@
     if (craftedItemsStoredValue) {
         craftedItems = JSON.parse(craftedItemsStoredValue)
     }
+
+    function addGlobalStyle(css) {
+        var head, style;
+        head = document.getElementsByTagName('head')[0];
+        if (!head) { return; }
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+        head.appendChild(style);
+    }
+    addGlobalStyle('.timeChoose .active {background: rgb(254, 94, 94);color: white;border-radius: 3px;}');
+    addGlobalStyle('.timeChoose span {padding: 2px;font-size: 10px;margin-right: 8px;cursor: pointer}');
+    addGlobalStyle('.trackedItemElem {font-size: 12px}');
+    //$('head').append('<style>.timeChoose .active {background: rgb(254, 94, 94);color: white;border-radius: 3px;}.timeChoose span {padding: 2px;font-size: 10px;margin-right: 8px;cursor: pointer}</style>');
 
     var cssNode = document.createElement("link");
     cssNode.setAttribute("rel", "stylesheet");
@@ -91,6 +109,23 @@
             $({ deg: 0 }).animate({ deg: angle }, args);
         });
     };
+
+    function nFormatter(num, digits) {
+        const lookup = [
+            { value: 1, symbol: "" },
+            { value: 1e3, symbol: "k" },
+            { value: 1e6, symbol: "M" },
+            { value: 1e9, symbol: "G" },
+            { value: 1e12, symbol: "T" },
+            { value: 1e15, symbol: "P" },
+            { value: 1e18, symbol: "E" }
+        ];
+        const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+        var item = lookup.slice().reverse().find(function (item) {
+            return num >= item.value;
+        });
+        return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
+    }
 
     let isAutoSellActivated = true;
     $(document).tooltip();
@@ -155,8 +190,8 @@
             "borderRadius": "5px",
             "min-height": "50px",
             "height": "200px",
-            "min-width": "300px",
-            "width": "300px",
+            "min-width": "400px",
+            "width": "400px",
             "overflow": "hidden",
             "padding": "20px",
             "position": "absolute",
@@ -283,6 +318,7 @@
 
         function addItemToDom(item) {
             let trackedItemElem = document.createElement('div');
+            trackedItemElem.classList.add('trackedItemElem');
             trackedItemElem.id = 'tracked-item-' + item.item;
             $(trackedItemElem).css({
                 "marginTop": "10px",
@@ -293,32 +329,154 @@
             });
 
             let trackedItemElemH1 = document.createElement('h1');
-            trackedItemElemH1.innerHTML = item.item + " :";
+            trackedItemElemH1.innerHTML = '<img src="' + UiTools.getIconFileUrl(item.item) + '" width="30" />' + item.item.replaceAll("_", " ");
             $(trackedItemElemH1).css({
                 "fontSize": "17px",
                 "color": "black",
+                "display": "flex",
+                "flex-wrap": "wrap",
+                "align-items": "center",
             });
 
             let trackedItemElemProdRate = document.createElement('div');
             trackedItemElemProdRate.id = 'tracked-item-prod-rate-' + item.item;
             //trackedItemElemProdRate.classList.add('bank', 'contextual');
             trackedItemElemProdRate.innerHTML = item.count + ' | ' + item.oneMin.toFixed(2) + ' | ' + item.oneHour.toFixed(2);
+            $(trackedItemElemProdRate).css({
+                "font-size": "12px",
+                "font-weight": "800",
+                "margin-bottom": "5px",
+            });
+
+            let timeChooseMoney = document.createElement('div');
+            timeChooseMoney.classList.add('timeChoose');
+            $(timeChooseMoney).css({
+                "display": "flex",
+                "flex-wrap": "wrap",
+                "align-items": "center",
+            });
+            let timeChoosePoint = document.createElement('div');
+            timeChoosePoint.classList.add('timeChoose');
+            $(timeChoosePoint).css({
+                "display": "flex",
+                "flex-wrap": "wrap",
+                "align-items": "center",
+            });
+
+            let hourChooseMoney = document.createElement('span');
+            hourChooseMoney.innerHTML = '1h';
+            let hourChoosePoint = document.createElement('span');
+            hourChoosePoint.innerHTML = '1h';
+
+            $(hourChooseMoney).click(function () {
+                item.moneyRatePicked = 'hour'
+                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: ' + item.oneHourMoney.toFixed(2) + '$');
+
+            })
+            $(hourChoosePoint).click(function () {
+                item.pointRatePicked = 'hour'
+                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + item.oneHourPoint.toFixed(2) + '$');
+            })
+
+            let dayChooseMoney = document.createElement('span');
+            dayChooseMoney.classList.add('active');
+            dayChooseMoney.innerHTML = '24h';
+            let dayChoosePoint = document.createElement('span');
+            dayChoosePoint.classList.add('active');
+            dayChoosePoint.innerHTML = '24h';
+
+
+
+            let weekChooseMoney = document.createElement('span');
+            weekChooseMoney.innerHTML = '1w';
+            let weekChoosePoint = document.createElement('span');
+            weekChoosePoint.innerHTML = '1w';
+
+            $(hourChooseMoney).click(function () {
+                item.moneyRatePicked = 'hour'
+                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: $' + nFormatter(item.oneHourMoney, 2));
+                $(weekChooseMoney).removeClass("active")
+                $(dayChooseMoney).removeClass("active")
+                $(hourChooseMoney).addClass("active")
+
+            })
+            $(hourChoosePoint).click(function () {
+                item.pointRatePicked = 'hour'
+                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + nFormatter(item.oneHourPoint, 2));
+                $(weekChoosePoint).removeClass("active")
+                $(dayChoosePoint).removeClass("active")
+                $(hourChoosePoint).addClass("active")
+            })
+
+            $(dayChooseMoney).click(function () {
+                item.moneyRatePicked = 'day'
+                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: $' + nFormatter(item.oneDayMoney, 2));
+                $(weekChooseMoney).removeClass("active")
+                $(dayChooseMoney).addClass("active")
+                $(hourChooseMoney).removeClass("active")
+            })
+            $(dayChoosePoint).click(function () {
+                item.pointRatePicked = 'day'
+                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + nFormatter(item.oneDayPoint, 2));
+                $(weekChoosePoint).removeClass("active")
+                $(dayChoosePoint).addClass("active")
+                $(hourChoosePoint).removeClass("active")
+            })
+
+            $(weekChooseMoney).click(function () {
+                item.moneyRatePicked = 'week'
+                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: $' + nFormatter(item.oneWeekMoney, 2));
+                $(weekChooseMoney).addClass("active")
+                $(dayChooseMoney).removeClass("active")
+                $(hourChooseMoney).removeClass("active")
+            })
+            $(weekChoosePoint).click(function () {
+                item.pointRatePicked = 'week'
+                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + nFormatter(item.oneWeekPoint, 2));
+                $(weekChoosePoint).addClass("active")
+                $(dayChoosePoint).removeClass("active")
+                $(hourChoosePoint).removeClass("active")
+
+            })
+
+            $(timeChooseMoney).append(hourChooseMoney);
+            $(timeChooseMoney).append(dayChooseMoney);
+            $(timeChooseMoney).append(weekChooseMoney);
+
+            $(timeChoosePoint).append(hourChoosePoint);
+            $(timeChoosePoint).append(dayChoosePoint);
+            $(timeChoosePoint).append(weekChoosePoint);
 
             let trackedItemElemMoney = document.createElement('div');
             trackedItemElemMoney.id = 'tracked-item-money-' + item.item;
             trackedItemElemMoney.style = 'width: 75%;';
-            trackedItemElemMoney.innerHTML = '24h money: ' + item.oneDayMoney.toFixed(2) + '$';
+            trackedItemElemMoney.innerHTML = '<span class="dynamic">money: $' + nFormatter(item.oneDayMoney, 2) + '</span>';
+            $(trackedItemElemMoney).css({
+                "display": "flex",
+                "flex-wrap": "wrap",
+                "align-items": "center",
+                "margin-bottom": "5px",
+            });
+            $(trackedItemElemMoney).prepend(timeChooseMoney);
 
             let trackedItemElemPoint = document.createElement('div');
             trackedItemElemPoint.id = 'tracked-item-point-' + item.item;
             trackedItemElemPoint.style = 'width: 75%;';
-            trackedItemElemPoint.innerHTML = '24h points: ' + item.oneDayPoint.toFixed(2);
+            trackedItemElemPoint.innerHTML = '<span class="dynamic">points: ' + nFormatter(item.oneDayPoint, 2) + "</span>";
+            $(trackedItemElemPoint).css({
+                "display": "flex",
+                "flex-wrap": "wrap",
+                "align-items": "center",
+            });
+            $(trackedItemElemPoint).prepend(timeChoosePoint);
 
             $(itemList).append(trackedItemElem);
             $(trackedItemElem).append(trackedItemElemH1);
             $(trackedItemElem).append(trackedItemElemProdRate);
             $(trackedItemElem).append(trackedItemElemMoney);
             $(trackedItemElem).append(trackedItemElemPoint);
+
+
         }
 
         hud(prod_rate_hud);
@@ -338,8 +496,14 @@
                         first: 0,
                         oneMin: 0,
                         oneHour: 0,
+                        oneHourMoney: 0,
                         oneDayMoney: 0,
+                        oneWeekMoney: 0,
+                        oneHourPoint: 0,
                         oneDayPoint: 0,
+                        oneWeekPoint: 0,
+                        moneyRatePicked: 'day',
+                        pointRatePicked: 'day',
                         sold: currentItem.CityPrice,
                         point: currentItem.CityPoints
                     };
@@ -356,13 +520,28 @@
                     trackedItem.oneMin = trackedItem.count / (timeDiff / 60000)
                     trackedItem.oneHour = trackedItem.count / (timeDiff / 3600000)
                     trackedItem.oneDayMoney = ((((trackedItem.oneMin * 60) * 24)) * trackedItem.sold) - ((Game.town.GetTotalLaborCost() * 60 * 24))
+                    trackedItem.oneHourMoney = ((((trackedItem.oneMin * 60))) * trackedItem.sold) - ((Game.town.GetTotalLaborCost() * 60))
+                    trackedItem.oneWeekMoney = ((((trackedItem.oneMin * 60) * 24 * 7)) * trackedItem.sold) - ((Game.town.GetTotalLaborCost() * 60 * 24 * 7))
                     trackedItem.oneDayPoint = ((((trackedItem.oneMin * 60) * 24)) * trackedItem.point)
+                    trackedItem.oneHourPoint = ((((trackedItem.oneMin * 60))) * trackedItem.point)
+                    trackedItem.oneWeekPoint = ((((trackedItem.oneMin * 60) * 24 * 7)) * trackedItem.point)
                     trackedItem.lastComingTime = Date.now()
                 }
                 GM_setValue('trackedRateItem', JSON.stringify(trackedItems))
                 $('#tracked-item-prod-rate-' + trackedItem.item).html(trackedItem.count + ' | ' + trackedItem.oneMin.toFixed(2) + ' | ' + trackedItem.oneHour.toFixed(2));
-                $('#tracked-item-money-' + trackedItem.item).html('24h money: ' + trackedItem.oneDayMoney.toFixed(2) + '$');
-                $('#tracked-item-point-' + trackedItem.item).html('24h points: ' + trackedItem.oneDayPoint.toFixed(2));
+                if (trackedItem.moneyRatePicked == 'hour')
+                    $('#tracked-item-money-' + trackedItem.item + ' .dynamic').html('money: $' + nFormatter(trackedItem.oneHourMoney, 2));
+                else if (trackedItem.moneyRatePicked == 'day')
+                    $('#tracked-item-money-' + trackedItem.item + ' .dynamic').html('money: $' + nFormatter(trackedItem.oneDayMoney, 2));
+                else if (trackedItem.moneyRatePicked == 'week')
+                    $('#tracked-item-money-' + trackedItem.item + ' .dynamic').html('money: $' + nFormatter(trackedItem.oneWeekMoney, 2));
+
+                if (trackedItem.pointRatePicked == 'hour')
+                    $('#tracked-item-point-' + trackedItem.item + ' .dynamic').html('points: ' + nFormatter(trackedItem.oneHourPoint, 2));
+                else if (trackedItem.pointRatePicked == 'day')
+                    $('#tracked-item-point-' + trackedItem.item + ' .dynamic').html('points: ' + nFormatter(trackedItem.oneDayPoint, 2));
+                else if (trackedItem.pointRatePicked == 'week')
+                    $('#tracked-item-point-' + trackedItem.item + ' .dynamic').html('points: ' + nFormatter(trackedItem.oneWeekPoint, 2));
             }
 
         }
@@ -446,7 +625,7 @@
                 });
 
                 $(item_selected_li).append("<img style='display:inline-block;' width='40' src='https://townstar.sandbox-games.com/" + UiTools.getIconFileUrl(craftedItem.item) + "' />");
-                $(item_selected_li).append("<span>" + craftedItem.item.replace("_", " ") + "</span>")
+                $(item_selected_li).append("<span>" + craftedItem.item.replaceAll("_", " ") + "</span>")
                 $(iconFromAutoSell).append(moreFromAutoSell)
                 $(iconFromAutoSell).append(deleteItemFromAutoSell)
                 $(item_selected_li).append(iconFromAutoSell)
@@ -584,7 +763,7 @@
             let craftItem = Game.craftData[craftItemKey]
             if (craftedItems.find(it => it.item == craftItem.Name) == undefined) {
                 ItemToAddInSellingList.push({
-                    text: craftItem.Name.replace("_", " "),
+                    text: craftItem.Name.replaceAll("_", " "),
                     value: craftItem.Name,
                     selected: false,
                     description: "Description with Foursquare",
@@ -621,8 +800,8 @@
             "borderRadius": "5px",
             "min-height": "50px",
             "height": "200px",
-            "min-width": "300px",
-            "width": "300px",
+            "min-width": "400px",
+            "width": "400px",
             "padding": "20px",
             "position": "absolute",
         });
