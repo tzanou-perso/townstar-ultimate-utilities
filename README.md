@@ -1,9 +1,11 @@
-- [townstar-ultimate-utilities](#townstar-ultimate-utilities)
+- [townstar-ultimate-utilities (Beta)](#townstar-ultimate-utilities-beta)
 - [How to install](#how-to-install)
 - [How to use](#how-to-use)
 
-# townstar-ultimate-utilities
+# townstar-ultimate-utilities (Beta)
 A tampermonkey script for the town star gala game with a lot of features like auto sell a powerfull rate monitor and more ... it come with a pretty and easy to use interfaces
+
+![Alt Text](/images/townstar.gif)
 
 # How to install
 - Install tampermonkey from http://tampermonkey.net/ See the below video for more details
