@@ -426,6 +426,7 @@
                 "display": "flex",
                 "flex-wrap": "wrap",
                 "align-items": "center",
+                "margin": "0",
             });
 
             let trackedItemElemProdRate = document.createElement('div');
