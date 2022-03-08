@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Townstar ultimate utilities
 // @namespace    http://tampermonkey.net/
-// @version      0.1.4
+// @version      0.1.5
 // @updateURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @downloadURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @description  A script for the town star gala game with a lot of features like auto sell a powerfull rate monitor and more ... it come with a pretty and easy to use interfaces
@@ -285,6 +285,7 @@
             "padding": "20px",
             "position": "absolute",
             "max-height": "40vh",
+            "pointer-events": "all",
         });
 
         let itemList = document.createElement('div');
@@ -366,7 +367,7 @@
         $(prod_rate_hud).append('<h1> Production Rate Monitor </h1>');
         prod_rate_hud.append(itemList);
         //$('body').append('<div id = "prodRateHud" class = "ui-widget-content" style="cursor:pointer;position:absolute;top:'+GM_getValue("top")+'px;z-index:'+_highest+';left:'+GM_getValue("left")+'px;background:#ecebeb;border:1px solid #333;border-radius:5px;height:50px;width:300px;"> Hello, This is an addon div from Greasemonkey. <input type = "text" value = "type something here"></input> </div>');
-        $('body').append(prod_rate_hud);
+        $('.hud').prepend(prod_rate_hud);
         $("#prodRateHud").draggable({
             handle: ".drag",
             drag: function (e) {
@@ -462,6 +463,8 @@
                 "display": "flex",
                 "flex-wrap": "wrap",
                 "align-items": "center",
+                "display": "none",
+                "marginBottom": "7px",
             });
             let timeChoosePoint = document.createElement('div');
             timeChoosePoint.classList.add('timeChoose');
@@ -469,6 +472,7 @@
                 "display": "flex",
                 "flex-wrap": "wrap",
                 "align-items": "center",
+                "display": "none",
             });
 
             let hourChooseMoney = document.createElement('span');
@@ -482,12 +486,12 @@
 
             $(hourChooseMoney).click(function () {
                 item.moneyRatePicked = 'hour'
-                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: ' + item.oneHourMoney.toFixed(2) + '$');
+                $('#tracked-item-money-' + item.item).html('money: ' + item.oneHourMoney.toFixed(2) + '$');
 
             })
             $(hourChoosePoint).click(function () {
                 item.pointRatePicked = 'hour'
-                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + item.oneHourPoint.toFixed(2) + '$');
+                $('#tracked-item-point-' + item.item).html('points: ' + item.oneHourPoint.toFixed(2) + '$');
             })
 
             let dayChooseMoney = document.createElement('span');
@@ -513,7 +517,7 @@
 
             $(hourChooseMoney).click(function () {
                 item.moneyRatePicked = 'hour'
-                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: $' + nFormatter(item.oneHourMoney, 2));
+                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneHourMoney, 2));
                 $(weekChooseMoney).removeClass("active")
                 $(dayChooseMoney).removeClass("active")
                 $(hourChooseMoney).addClass("active")
@@ -521,7 +525,7 @@
             })
             $(hourChoosePoint).click(function () {
                 item.pointRatePicked = 'hour'
-                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + nFormatter(item.oneHourPoint, 2));
+                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneHourPoint, 2));
                 $(weekChoosePoint).removeClass("active")
                 $(dayChoosePoint).removeClass("active")
                 $(hourChoosePoint).addClass("active")
@@ -529,14 +533,14 @@
 
             $(dayChooseMoney).click(function () {
                 item.moneyRatePicked = 'day'
-                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: $' + nFormatter(item.oneDayMoney, 2));
+                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneDayMoney, 2));
                 $(weekChooseMoney).removeClass("active")
                 $(dayChooseMoney).addClass("active")
                 $(hourChooseMoney).removeClass("active")
             })
             $(dayChoosePoint).click(function () {
                 item.pointRatePicked = 'day'
-                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + nFormatter(item.oneDayPoint, 2));
+                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneDayPoint, 2));
                 $(weekChoosePoint).removeClass("active")
                 $(dayChoosePoint).addClass("active")
                 $(hourChoosePoint).removeClass("active")
@@ -544,14 +548,14 @@
 
             $(weekChooseMoney).click(function () {
                 item.moneyRatePicked = 'week'
-                $('#tracked-item-money-' + item.item + ' .dynamic').html('money: $' + nFormatter(item.oneWeekMoney, 2));
+                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneWeekMoney, 2));
                 $(weekChooseMoney).addClass("active")
                 $(dayChooseMoney).removeClass("active")
                 $(hourChooseMoney).removeClass("active")
             })
             $(weekChoosePoint).click(function () {
                 item.pointRatePicked = 'week'
-                $('#tracked-item-point-' + item.item + ' .dynamic').html('points: ' + nFormatter(item.oneWeekPoint, 2));
+                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneWeekPoint, 2));
                 $(weekChoosePoint).addClass("active")
                 $(dayChoosePoint).removeClass("active")
                 $(hourChoosePoint).removeClass("active")
@@ -566,44 +570,39 @@
             $(timeChoosePoint).append(dayChoosePoint);
             $(timeChoosePoint).append(weekChoosePoint);
 
-            let trackedItemElemMoney = document.createElement('div');
+            let trackedItemElemMoney = document.createElement('span');
             trackedItemElemMoney.id = 'tracked-item-money-' + item.item;
             trackedItemElemMoney.style = 'width: 75%;';
             let properFrequencyMoney = getMoneyRateFrequency == 'hour' ? item.oneHourMoney : getMoneyRateFrequency == 'day' ? item.oneDayMoney : item.oneWeekMoney
-            trackedItemElemMoney.innerHTML = '<span class="dynamic">money: $' + nFormatter(properFrequencyMoney, 2) + '</span>';
+            trackedItemElemMoney.innerHTML = 'money: $' + nFormatter(properFrequencyMoney, 2);
             $(trackedItemElemMoney).css({
-                "display": "flex",
-                "flex-wrap": "wrap",
-                "align-items": "center",
-                "margin-bottom": "5px",
-                "display": "none",
+                "fontSize": "12px",
+                "fontWeight": "800",
             });
-            $(trackedItemElemMoney).prepend(timeChooseMoney);
+            $(timeChooseMoney).append(trackedItemElemMoney);
 
-            let trackedItemElemPoint = document.createElement('div');
+            let trackedItemElemPoint = document.createElement('span');
             trackedItemElemPoint.id = 'tracked-item-point-' + item.item;
             trackedItemElemPoint.style = 'width: 75%;';
             let properFrequencyPoint = getPointRateFrequency == 'hour' ? item.oneHourPoint : getPointRateFrequency == 'day' ? item.oneDayPoint : item.oneWeekPoint
-            trackedItemElemPoint.innerHTML = '<span class="dynamic">points: ' + nFormatter(properFrequencyPoint, 2) + "</span>";
+            trackedItemElemPoint.innerHTML = 'points: ' + nFormatter(properFrequencyPoint, 2);
             $(trackedItemElemPoint).css({
-                "display": "flex",
-                "flex-wrap": "wrap",
-                "align-items": "center",
-                "display": "none",
+                "fontSize": "12px",
+                "fontWeight": "800",
             });
-            $(trackedItemElemPoint).prepend(timeChoosePoint);
+            $(timeChoosePoint).append(trackedItemElemPoint);
 
             $(itemList).append(trackedItemElem);
             $(trackedItemElemH1).append(trackedItemElemProdRate);
             $(trackedItemElemH1).append(moreFromProdRate);
             $(trackedItemElem).append(trackedItemElemH1);
-            $(trackedItemElem).append(trackedItemElemMoney);
-            $(trackedItemElem).append(trackedItemElemPoint);
+            $(trackedItemElem).append(timeChooseMoney);
+            $(trackedItemElem).append(timeChoosePoint);
 
             let isOpen = false
             $(moreFromProdRate).click(function () {
-                $(trackedItemElemMoney).toggle("slide", { direction: "up" }, 300)
-                $(trackedItemElemPoint).toggle("slide", { direction: "up" }, 300)
+                $(timeChooseMoney).toggle("slide", { direction: "up" }, 300)
+                $(timeChoosePoint).toggle("slide", { direction: "up" }, 300)
                 if (isOpen) {
                     $("#tracked-item-" + item.item + " .moreFromProdRate i").animateRotate(0);
                 } else {
@@ -666,18 +665,18 @@
                 GM_setValue('trackedRateItem', JSON.stringify(trackedItems))
                 $('#tracked-item-prod-rate-' + trackedItem.item).html(trackedItem.count + ' | ' + trackedItem.oneMin.toFixed(2) + ' | ' + trackedItem.oneHour.toFixed(2));
                 if (trackedItem.moneyRatePicked == 'hour')
-                    $('#tracked-item-money-' + trackedItem.item + ' .dynamic').html('money: $' + nFormatter(trackedItem.oneHourMoney, 2));
+                    $('#tracked-item-money-' + trackedItem.item).html('money: $' + nFormatter(trackedItem.oneHourMoney, 2));
                 else if (trackedItem.moneyRatePicked == 'day')
-                    $('#tracked-item-money-' + trackedItem.item + ' .dynamic').html('money: $' + nFormatter(trackedItem.oneDayMoney, 2));
+                    $('#tracked-item-money-' + trackedItem.item).html('money: $' + nFormatter(trackedItem.oneDayMoney, 2));
                 else if (trackedItem.moneyRatePicked == 'week')
-                    $('#tracked-item-money-' + trackedItem.item + ' .dynamic').html('money: $' + nFormatter(trackedItem.oneWeekMoney, 2));
+                    $('#tracked-item-money-' + trackedItem.item).html('money: $' + nFormatter(trackedItem.oneWeekMoney, 2));
 
                 if (trackedItem.pointRatePicked == 'hour')
-                    $('#tracked-item-point-' + trackedItem.item + ' .dynamic').html('points: ' + nFormatter(trackedItem.oneHourPoint, 2));
+                    $('#tracked-item-point-' + trackedItem.item).html('points: ' + nFormatter(trackedItem.oneHourPoint, 2));
                 else if (trackedItem.pointRatePicked == 'day')
-                    $('#tracked-item-point-' + trackedItem.item + ' .dynamic').html('points: ' + nFormatter(trackedItem.oneDayPoint, 2));
+                    $('#tracked-item-point-' + trackedItem.item).html('points: ' + nFormatter(trackedItem.oneDayPoint, 2));
                 else if (trackedItem.pointRatePicked == 'week')
-                    $('#tracked-item-point-' + trackedItem.item + ' .dynamic').html('points: ' + nFormatter(trackedItem.oneWeekPoint, 2));
+                    $('#tracked-item-point-' + trackedItem.item).html('points: ' + nFormatter(trackedItem.oneWeekPoint, 2));
             }
 
         }
@@ -940,6 +939,7 @@
             "width": "400px",
             "padding": "20px",
             "position": "absolute",
+            "pointer-events": "all",
         });
 
         let select_item = document.createElement('div');
@@ -1039,7 +1039,7 @@
 
         $(auto_sell_hud).append(select_item);
         $(auto_sell_hud).append(item_selected_ul);
-        $('body').append(auto_sell_hud);
+        $('.hud').prepend(auto_sell_hud);
 
         await WaitForElement('#myDropdown');
 
