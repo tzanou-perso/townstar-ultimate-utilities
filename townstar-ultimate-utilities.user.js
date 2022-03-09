@@ -11,6 +11,7 @@
 // @require    https://code.jquery.com/ui/1.13.1/jquery-ui.js
 // @require    https://cdn.rawgit.com/prashantchaudhary/ddslick/master/jquery.ddslick.min.js
 // @require    https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.1.0/js/bootstrap-switch.min.js
+// @require    https://cdnjs.cloudflare.com/ajax/libs/jquery.dropotron/1.4.3/jquery.dropotron.min.js
 // @grant GM_setValue
 // @grant GM_getValue
 // @grant GM_deleteValue
@@ -36,14 +37,28 @@
         // {item: 'Salt', keepAmt: 0, sellMin: 0},
         // {item: 'Sugar', keepAmt: 0, sellMin: 10},
     ]
-    //Change the default production tracker frequency for money
-    // Must be day,hour or week value
-    // Otherwise the script will crash
-    let getMoneyRateFrequency = "day";
-    //Change the default production tracker frequency for point
-    // Must be day,hour or week value
-    // Otherwise the script will crash
-    let getPointRateFrequency = "day";
+    let configs = {
+        //Change the default production tracker frequency for money
+        // Must be day,hour or week value
+        // Otherwise the script will crash
+        getMoneyRateFrequency: "day",
+        //Change the default production tracker frequency for point
+        // Must be day,hour or week value
+        // Otherwise the script will crash
+        getPointRateFrequency: "day",
+        keepAmtStepDefault: 1,
+        sellMinStepDefault: 1,
+    }
+
+    // Uncomment following lin for reseting config
+    // GM_setValue('configs', configs)
+
+    console.log("lkdfjslfsdjkfsdjklfhsdjfghsdjkfh", GM_getValue('configs'))
+    if (!GM_getValue('configs')) {
+        GM_setValue('configs', configs)
+    } else {
+        configs = GM_getValue('configs')
+    }
 
 
     const originalCraftedItems = craftedItems;
@@ -76,9 +91,20 @@
         style.innerHTML = css;
         head.appendChild(style);
     }
-    addGlobalStyle('.timeChoose .active {background: rgb(254, 94, 94);color: white;border-radius: 3px;}');
+    addGlobalStyle('.timeChoose .in_active {background: rgb(254, 94, 94);color: white;border-radius: 3px;}');
     addGlobalStyle('.timeChoose span {padding: 2px;font-size: 10px;margin-right: 8px;cursor: pointer}');
     addGlobalStyle('.trackedItemElem {font-size: 12px}');
+    addGlobalStyle('#main-nav ul { list-style: none; margin: 0; padding: 0; }');
+    addGlobalStyle('#main-nav ul li { display: inline-block; margin: 0; padding: 0; border-radius: 0.5em; }');
+    addGlobalStyle('#main-nav ul li.active { background: #999; }');
+    addGlobalStyle('#main-nav ul li.active a { color: #fff; text-decoration: none; }');
+    addGlobalStyle('.dropotron { background: #444; border-radius: 0.5em; list-style: none; margin: 0; min-width: 10em; padding: 0.75em 1em 0.75em 1em; }');
+    addGlobalStyle('.dropotron > li { border-top: solid 1px #555; margin: 0; padding: 0;padding-top: 10px; }');
+    addGlobalStyle('.dropotron > li:first-child { border-top: 0; }');
+    addGlobalStyle('.dropotron > li > a { color: #ccc; display: block; padding: 0.5em 0 0.5em 0; text-decoration: none; }');
+    addGlobalStyle('.dropotron > li.active > a, .dropotron > li:hover > a { color: #fff; }');
+    addGlobalStyle('.dropotron.level-0 { margin-top: 1.25em; }');
+    addGlobalStyle('.dropotron.level-0:before { content: ""; position: absolute; border-bottom: solid 0.5em #444; border-left: solid 0.5em transparent; border-right: solid 0.5em transparent; top: -0.5em; }');
     //$('head').append('<style>.timeChoose .active {background: rgb(254, 94, 94);color: white;border-radius: 3px;}.timeChoose span {padding: 2px;font-size: 10px;margin-right: 8px;cursor: pointer}</style>');
 
     var cssNode = document.createElement("link");
@@ -138,12 +164,168 @@
 
     let isAutoSellActivated = true;
     $(document).tooltip();
+    function hourChoose(item) {
+        let hourChooseMoney = document.createElement('span');
+        hourChooseMoney.innerHTML = '1h';
+        if (configs.getMoneyRateFrequency == 'hour')
+            hourChooseMoney.classList.add('in_active');
+        let hourChoosePoint = document.createElement('span');
+        hourChoosePoint.innerHTML = '1h';
+        if (configs.getPointRateFrequency == 'hour')
+            hourChooseMoney.classList.add('in_active');
+
+        let dayChooseMoney = document.createElement('span');
+        if (configs.getMoneyRateFrequency == 'day')
+            dayChooseMoney.classList.add('in_active');
+        dayChooseMoney.innerHTML = '24h';
+        let dayChoosePoint = document.createElement('span');
+        if (configs.getPointRateFrequency == 'day')
+            dayChoosePoint.classList.add('in_active');
+        dayChoosePoint.innerHTML = '24h';
+
+
+
+        let weekChooseMoney = document.createElement('span');
+        weekChooseMoney.innerHTML = '1w';
+        if (configs.getMoneyRateFrequency == 'week')
+            weekChooseMoney.classList.add('in_active');
+        let weekChoosePoint = document.createElement('span');
+        if (configs.getPointRateFrequency == 'week')
+            weekChoosePoint.classList.add('in_active');
+
+        weekChoosePoint.innerHTML = '1w';
+
+        $(hourChooseMoney).click(function (e) {
+            e.stopPropagation();
+            if (item) {
+                item.moneyRatePicked = 'hour'
+                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneHourMoney, 2));
+            } else {
+                configs.getMoneyRateFrequency = 'hour'
+                GM_setValue('configs', configs)
+            }
+
+            $(weekChooseMoney).removeClass("in_active")
+            $(dayChooseMoney).removeClass("in_active")
+            $(hourChooseMoney).addClass("in_active")
+
+        })
+        $(hourChoosePoint).click(function (e) {
+            e.stopPropagation();
+            if (item) {
+                item.pointRatePicked = 'hour'
+                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneHourPoint, 2));
+            } else {
+                configs.getPointRateFrequency = 'hour'
+                GM_setValue('configs', configs)
+            }
+
+            $(weekChoosePoint).removeClass("in_active")
+            $(dayChoosePoint).removeClass("in_active")
+            $(hourChoosePoint).addClass("in_active")
+        })
+
+        $(dayChooseMoney).click(function (e) {
+            e.stopPropagation();
+            if (item) {
+                item.moneyRatePicked = 'day'
+                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneDayMoney, 2));
+            } else {
+                configs.getMoneyRateFrequency = 'day'
+                GM_setValue('configs', configs)
+            }
+
+            $(weekChooseMoney).removeClass("in_active")
+            $(dayChooseMoney).addClass("in_active")
+            $(hourChooseMoney).removeClass("in_active")
+        })
+        $(dayChoosePoint).click(function (e) {
+            e.stopPropagation();
+            if (item) {
+                item.pointRatePicked = 'day'
+                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneDayPoint, 2));
+            } else {
+                configs.getPointRateFrequency = 'day'
+                GM_setValue('configs', configs)
+            }
+
+            $(weekChoosePoint).removeClass("in_active")
+            $(dayChoosePoint).addClass("in_active")
+            $(hourChoosePoint).removeClass("in_active")
+        })
+
+        $(weekChooseMoney).click(function (e) {
+            e.stopPropagation();
+            if (item) {
+                item.moneyRatePicked = 'week'
+                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneWeekMoney, 2));
+            } else {
+                configs.getMoneyRateFrequency = 'week'
+                GM_setValue('configs', configs)
+            }
+
+            $(weekChooseMoney).addClass("in_active")
+            $(dayChooseMoney).removeClass("in_active")
+            $(hourChooseMoney).removeClass("in_active")
+        })
+        $(weekChoosePoint).click(function (e) {
+            e.stopPropagation();
+            if (item) {
+                item.pointRatePicked = 'week'
+                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneWeekPoint, 2));
+            } else {
+                configs.getPointRateFrequency = 'week'
+                GM_setValue('configs', configs)
+            }
+
+            $(weekChoosePoint).addClass("in_active")
+            $(dayChoosePoint).removeClass("in_active")
+            $(hourChoosePoint).removeClass("in_active")
+
+        })
+        return {
+            hourChooseMoney: hourChooseMoney,
+            hourChoosePoint: hourChoosePoint,
+            dayChooseMoney: dayChooseMoney,
+            dayChoosePoint: dayChoosePoint,
+            weekChooseMoney: weekChooseMoney,
+            weekChoosePoint: weekChoosePoint,
+        }
+    }
+    function setTitleWithTooltip(title, tooltip, elemeCont, iconClass) {
+        let titleWithTooltipCont = document.createElement('div');
+        $(titleWithTooltipCont).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+        })
+
+        let titleWithTooltipTitle = document.createElement('span');
+        $(titleWithTooltipTitle).html(title)
+        $(titleWithTooltipTitle).css({
+            "margin-right": "10px",
+            "margin-bottom": "3px",
+            "font-size": "10px",
+        })
+
+        let titleWithTooltipTooltip = document.createElement('i');
+        titleWithTooltipTooltip.classList.add('fa-solid');
+        titleWithTooltipTooltip.classList.add(iconClass ? iconClass : 'fa-circle-info');
+        $(titleWithTooltipTooltip).attr("title", tooltip);
+        $(titleWithTooltipTooltip).css({
+            "margin-left": "auto",
+        })
+
+        $(titleWithTooltipCont).append(titleWithTooltipTitle);
+        $(titleWithTooltipCont).append(titleWithTooltipTooltip);
+        $(elemeCont).append(titleWithTooltipCont);
+    }
     async function hud(prod_rate_hud, auto_sell_hud) {
         let autoSellStatusCont = document.createElement('div');
         autoSellStatusCont.id = 'autosell-status-cont';
         autoSellStatusCont.style.cssText = 'cursor: pointer; position: absolute; left: 25%;pointer-events: all;';
         $(autoSellStatusCont).css({
-            "display": "flex",
+            "display": "none",
             "flex-wrap": "wrap",
             "align-items": "center",
             "width": "fit-content",
@@ -219,6 +401,188 @@
             $(this).css("color", "rgb(246 246 246 / 77%)");
         });
 
+        /* Option menu start */
+        let optionMenu = document.createElement('nav');
+        optionMenu.id = 'main-nav';
+
+        let optionMenUl = document.createElement('ul');
+
+        let optionMenUlLi = document.createElement('li');
+
+        let optionMenUlLiIcon = document.createElement('i');
+        optionMenUlLiIcon.classList.add('optionMenUlLiIcon');
+        optionMenUlLiIcon.classList.add('fa-solid');
+        optionMenUlLiIcon.classList.add('fa-ellipsis-vertical');
+        $(optionMenUlLiIcon).css({
+            "color": "rgb(246 246 246 / 77%)",
+            "fontSize": "16px",
+            "padding": "0 5px",
+        });
+        $(optionMenUlLiIcon).hover(function () {
+            $(this).css("color", "rgb(246 246 246)");
+        }, function () {
+            $(this).css("color", "rgb(246 246 246 / 77%)");
+        });
+
+        let optionMenUlLiUl = document.createElement('ul');
+        $(optionMenUlLiUl).css({
+            "color": "white",
+        });
+
+        let optionMenUlLiUlLiRate = document.createElement('li');
+        setTitleWithTooltip("Production rate monitor settings", "All the settings for production rate monitor", optionMenUlLiUlLiRate, "fa-angle-right")
+
+        let optionMenUlLiUlLiUlRate = document.createElement('ul');
+        $(optionMenUlLiUlLiUlRate).css({
+            "color": "white",
+        });
+
+        let optionMenUlLiUlLiUlMoneyFrequencyDefault = document.createElement('li');
+        let optionMenUlLiUlLiUlPointFrequencyDefault = document.createElement('li');
+
+        let timeChooseMoney = document.createElement('div');
+        timeChooseMoney.classList.add('timeChoose');
+        $(timeChooseMoney).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+            "marginBottom": "7px",
+        });
+        let timeChoosePoint = document.createElement('div');
+        timeChoosePoint.classList.add('timeChoose');
+        $(timeChoosePoint).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+        });
+
+        let hourChooseArray = hourChoose(undefined)
+
+        let hourChooseMoney = hourChooseArray.hourChooseMoney
+
+        let dayChooseMoney = hourChooseArray.dayChooseMoney
+
+        let dayChoosePoint = hourChooseArray.dayChoosePoint
+
+        let hourChoosePoint = hourChooseArray.hourChoosePoint
+
+        let weekChooseMoney = hourChooseArray.weekChooseMoney
+
+        let weekChoosePoint = hourChooseArray.weekChoosePoint
+
+        $(timeChooseMoney).append(hourChooseMoney);
+        $(timeChooseMoney).append(dayChooseMoney);
+        $(timeChooseMoney).append(weekChooseMoney);
+
+        $(timeChoosePoint).append(hourChoosePoint);
+        $(timeChoosePoint).append(dayChoosePoint);
+        $(timeChoosePoint).append(weekChoosePoint);
+
+        setTitleWithTooltip("Default Money Frequency", "The default money frequency for production rate monitor", optionMenUlLiUlLiUlMoneyFrequencyDefault)
+        $(optionMenUlLiUlLiUlMoneyFrequencyDefault).append(timeChooseMoney);
+        setTitleWithTooltip("Default Point Frequency", "The default point frequency for production rate monitor", optionMenUlLiUlLiUlPointFrequencyDefault)
+        $(optionMenUlLiUlLiUlPointFrequencyDefault).append(timeChoosePoint);
+
+        let optionMenUlLiUlLiAutoSell = document.createElement('li');
+        setTitleWithTooltip("Auto sell monitor settings", "All the settings for auto sell monitor", optionMenUlLiUlLiAutoSell, "fa-angle-right")
+
+        let optionMenUlLiUlLiUlAutoSell = document.createElement('ul');
+        $(optionMenUlLiUlLiUlAutoSell).css({
+            "color": "white",
+        });
+
+        let rangeKeepAmntCont = document.createElement('div');
+        $(rangeKeepAmntCont).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+        });
+        let rangeKeepAmnt = document.createElement('input');
+        $(rangeKeepAmnt).attr("data-id", "-keepAmnt");
+        $(rangeKeepAmnt).addClass("range-value")
+        $(rangeKeepAmnt).attr("type", "range");
+        $(rangeKeepAmnt).attr("min", "0");
+        $(rangeKeepAmnt).attr("max", "200");
+        $(rangeKeepAmnt).attr("step", "1");
+        $(rangeKeepAmnt).attr("value", configs.keepAmtStepDefault);
+        let rangeKeepAmntValue = document.createElement('span');
+        $(rangeKeepAmntValue).addClass("range-value")
+        $(rangeKeepAmntValue).html(configs.keepAmtStepDefault)
+
+        $(rangeKeepAmntCont).append(rangeKeepAmnt);
+        $(rangeKeepAmntCont).append(rangeKeepAmntValue);
+
+        $(rangeKeepAmnt).css({
+            "height": "fit-content",
+            "width": "70%",
+        })
+
+        $(rangeKeepAmnt).on('input', function (event) {
+            event.stopPropagation();
+            $(this).next('.range-value').html(this.value);
+            //craftedItem.keepAmt = parseInt(this.value)
+            configs.keepAmtStepDefault = this.value
+            GM_setValue('configs', configs)
+        });
+
+        $(rangeKeepAmnt).on('mousedown', function (event) {
+            event.stopPropagation();
+        });
+
+        let rangeSellMinCont = document.createElement('div');
+        $(rangeSellMinCont).css({
+            "display": "flex",
+            "flex-wrap": "wrap",
+            "align-items": "center",
+        });
+        let rangeSellMin = document.createElement('input');
+        $(rangeSellMin).attr("data-id", "-sellMin");
+        $(rangeSellMin).addClass("range-value")
+        $(rangeSellMin).attr("type", "range");
+        $(rangeSellMin).attr("min", "0");
+        $(rangeSellMin).attr("max", "200");
+        $(rangeSellMin).attr("step", "1");
+        $(rangeSellMin).attr("value", configs.sellMinStepDefault);
+        let rangeSellMinValue = document.createElement('span');
+        $(rangeSellMinValue).addClass("range-value")
+        $(rangeSellMinValue).html(configs.sellMinStepDefault)
+
+        $(rangeSellMinCont).append(rangeSellMin);
+        $(rangeSellMinCont).append(rangeSellMinValue);
+
+        $(rangeSellMin).css({
+            "height": "fit-content",
+            "width": "70%",
+        })
+
+        $(rangeSellMin).on('input', function (event) {
+            event.stopPropagation();
+            $(this).next('.range-value').html(this.value);
+            configs.sellMinStepDefault = this.value
+            GM_setValue('configs', configs)
+        });
+
+        $(rangeSellMin).on('mousedown', function (event) {
+            event.stopPropagation();
+        });
+
+        $(optionMenu).append(optionMenUl);
+        $(optionMenUl).append(optionMenUlLi);
+        $(optionMenUlLi).append(optionMenUlLiIcon);
+        $(optionMenUlLi).append(optionMenUlLiUl);
+        $(optionMenUlLiUl).append(optionMenUlLiUlLiRate);
+        $(optionMenUlLiUlLiRate).append(optionMenUlLiUlLiUlRate);
+        $(optionMenUlLiUlLiUlRate).append(optionMenUlLiUlLiUlMoneyFrequencyDefault);
+        $(optionMenUlLiUlLiUlRate).append(optionMenUlLiUlLiUlPointFrequencyDefault);
+
+        $(optionMenUlLiUl).append(optionMenUlLiUlLiAutoSell);
+        $(optionMenUlLiUlLiAutoSell).append(optionMenUlLiUlLiUlAutoSell);
+        setTitleWithTooltip("Default Keep amount", "The default range for auto sell monitor", optionMenUlLiUlLiUlAutoSell)
+        $(optionMenUlLiUlLiUlAutoSell).append(rangeKeepAmntCont);
+        setTitleWithTooltip("Default Sell minimum", "The default sell minimum for auto sell monitor", optionMenUlLiUlLiUlAutoSell)
+        $(optionMenUlLiUlLiUlAutoSell).append(rangeSellMinCont);
+
+        /* Option menu end */
 
         $(autoSellContent).prepend(autoSellContentIcon);
         $(RateMonitorContent).prepend(RateMonitorContentIcon);
@@ -226,8 +590,15 @@
         $(autoSellStatus).append(RateMonitorContent);
         $(autoSellStatusCont).append(dragStatus);
         $(autoSellStatusCont).append(autoSellStatus);
+        $(autoSellStatusCont).append(optionMenu);
         document.querySelector('.hud').prepend(autoSellStatusCont);
         await WaitForElement('#autosell-status');
+        $('#main-nav > ul').dropotron({ hideDelay: 250, })
+        await WaitForElement('.dropotron.level-0');
+        $(".dropotron.level-1").click(function (e) { e.stopPropagation(); })
+        $(autoSellStatusCont).css({
+            "display": "flex",
+        })
         $("#autosell-status-cont").draggable({
             handle: ".dragStatus",
             axis: "x",
@@ -475,92 +846,19 @@
                 "display": "none",
             });
 
-            let hourChooseMoney = document.createElement('span');
-            hourChooseMoney.innerHTML = '1h';
-            if (getMoneyRateFrequency == 'hour')
-                hourChooseMoney.classList.add('active');
-            let hourChoosePoint = document.createElement('span');
-            hourChoosePoint.innerHTML = '1h';
-            if (getPointRateFrequency == 'hour')
-                hourChooseMoney.classList.add('active');
+            let hourChooseArray = hourChoose(item)
 
-            $(hourChooseMoney).click(function () {
-                item.moneyRatePicked = 'hour'
-                $('#tracked-item-money-' + item.item).html('money: ' + item.oneHourMoney.toFixed(2) + '$');
+            let hourChooseMoney = hourChooseArray.hourChooseMoney
 
-            })
-            $(hourChoosePoint).click(function () {
-                item.pointRatePicked = 'hour'
-                $('#tracked-item-point-' + item.item).html('points: ' + item.oneHourPoint.toFixed(2) + '$');
-            })
+            let dayChooseMoney = hourChooseArray.dayChooseMoney
 
-            let dayChooseMoney = document.createElement('span');
-            if (getMoneyRateFrequency == 'day')
-                dayChooseMoney.classList.add('active');
-            dayChooseMoney.innerHTML = '24h';
-            let dayChoosePoint = document.createElement('span');
-            if (getPointRateFrequency == 'day')
-                dayChoosePoint.classList.add('active');
-            dayChoosePoint.innerHTML = '24h';
+            let dayChoosePoint = hourChooseArray.dayChoosePoint
 
+            let hourChoosePoint = hourChooseArray.hourChoosePoint
 
+            let weekChooseMoney = hourChooseArray.weekChooseMoney
 
-            let weekChooseMoney = document.createElement('span');
-            weekChooseMoney.innerHTML = '1w';
-            if (getMoneyRateFrequency == 'week')
-                weekChooseMoney.classList.add('active');
-            let weekChoosePoint = document.createElement('span');
-            if (getPointRateFrequency == 'week')
-                weekChoosePoint.classList.add('active');
-
-            weekChoosePoint.innerHTML = '1w';
-
-            $(hourChooseMoney).click(function () {
-                item.moneyRatePicked = 'hour'
-                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneHourMoney, 2));
-                $(weekChooseMoney).removeClass("active")
-                $(dayChooseMoney).removeClass("active")
-                $(hourChooseMoney).addClass("active")
-
-            })
-            $(hourChoosePoint).click(function () {
-                item.pointRatePicked = 'hour'
-                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneHourPoint, 2));
-                $(weekChoosePoint).removeClass("active")
-                $(dayChoosePoint).removeClass("active")
-                $(hourChoosePoint).addClass("active")
-            })
-
-            $(dayChooseMoney).click(function () {
-                item.moneyRatePicked = 'day'
-                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneDayMoney, 2));
-                $(weekChooseMoney).removeClass("active")
-                $(dayChooseMoney).addClass("active")
-                $(hourChooseMoney).removeClass("active")
-            })
-            $(dayChoosePoint).click(function () {
-                item.pointRatePicked = 'day'
-                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneDayPoint, 2));
-                $(weekChoosePoint).removeClass("active")
-                $(dayChoosePoint).addClass("active")
-                $(hourChoosePoint).removeClass("active")
-            })
-
-            $(weekChooseMoney).click(function () {
-                item.moneyRatePicked = 'week'
-                $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneWeekMoney, 2));
-                $(weekChooseMoney).addClass("active")
-                $(dayChooseMoney).removeClass("active")
-                $(hourChooseMoney).removeClass("active")
-            })
-            $(weekChoosePoint).click(function () {
-                item.pointRatePicked = 'week'
-                $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneWeekPoint, 2));
-                $(weekChoosePoint).addClass("active")
-                $(dayChoosePoint).removeClass("active")
-                $(hourChoosePoint).removeClass("active")
-
-            })
+            let weekChoosePoint = hourChooseArray.weekChoosePoint
 
             $(timeChooseMoney).append(hourChooseMoney);
             $(timeChooseMoney).append(dayChooseMoney);
@@ -573,7 +871,7 @@
             let trackedItemElemMoney = document.createElement('span');
             trackedItemElemMoney.id = 'tracked-item-money-' + item.item;
             trackedItemElemMoney.style = 'width: 75%;';
-            let properFrequencyMoney = getMoneyRateFrequency == 'hour' ? item.oneHourMoney : getMoneyRateFrequency == 'day' ? item.oneDayMoney : item.oneWeekMoney
+            let properFrequencyMoney = configs.getMoneyRateFrequency == 'hour' ? item.oneHourMoney : configs.getMoneyRateFrequency == 'day' ? item.oneDayMoney : item.oneWeekMoney
             trackedItemElemMoney.innerHTML = 'money: $' + nFormatter(properFrequencyMoney, 2);
             $(trackedItemElemMoney).css({
                 "fontSize": "12px",
@@ -584,7 +882,7 @@
             let trackedItemElemPoint = document.createElement('span');
             trackedItemElemPoint.id = 'tracked-item-point-' + item.item;
             trackedItemElemPoint.style = 'width: 75%;';
-            let properFrequencyPoint = getPointRateFrequency == 'hour' ? item.oneHourPoint : getPointRateFrequency == 'day' ? item.oneDayPoint : item.oneWeekPoint
+            let properFrequencyPoint = configs.getPointRateFrequency == 'hour' ? item.oneHourPoint : configs.getPointRateFrequency == 'day' ? item.oneDayPoint : item.oneWeekPoint
             trackedItemElemPoint.innerHTML = 'points: ' + nFormatter(properFrequencyPoint, 2);
             $(trackedItemElemPoint).css({
                 "fontSize": "12px",
@@ -637,8 +935,8 @@
                         oneHourPoint: 0,
                         oneDayPoint: 0,
                         oneWeekPoint: 0,
-                        moneyRatePicked: getMoneyRateFrequency,
-                        pointRatePicked: getPointRateFrequency,
+                        moneyRatePicked: configs.getMoneyRateFrequency,
+                        pointRatePicked: configs.getPointRateFrequency,
                         sold: currentItem.CityPrice,
                         point: currentItem.CityPoints
                     };
@@ -795,11 +1093,11 @@
                 $(rangeKeepAmnt).attr("type", "range");
                 $(rangeKeepAmnt).attr("min", "0");
                 $(rangeKeepAmnt).attr("max", "200");
-                $(rangeKeepAmnt).attr("step", "1");
-                $(rangeKeepAmnt).attr("value", craftedItem.keepAmt ? craftedItem.keepAmt.toString() : "0");
+                $(rangeKeepAmnt).attr("step", configs.sellMinStepDefault);
+                $(rangeKeepAmnt).attr("value", craftedItem.keepAmt ? craftedItem.keepAmt.toString() : configs.keepAmtStepDefault);
                 let rangeKeepAmntValue = document.createElement('span');
                 $(rangeKeepAmntValue).addClass("range-value")
-                $(rangeKeepAmntValue).html(craftedItem.keepAmt ? craftedItem.keepAmt.toString() : "0")
+                $(rangeKeepAmntValue).html(craftedItem.keepAmt ? craftedItem.keepAmt.toString() : configs.keepAmtStepDefault)
 
                 $(rangeKeepAmnt).css({
                     "height": "fit-content",
@@ -843,10 +1141,10 @@
                 $(rangeSellMin).attr("min", "0");
                 $(rangeSellMin).attr("max", "200");
                 $(rangeSellMin).attr("step", "1");
-                $(rangeSellMin).attr("value", craftedItem.sellMin ? craftedItem.sellMin.toString() : "0");
+                $(rangeSellMin).attr("value", craftedItem.sellMin ? craftedItem.sellMin.toString() : configs.sellMinStepDefault);
                 let rangeSellMinValue = document.createElement('span');
                 $(rangeSellMinValue).addClass("range-value")
-                $(rangeSellMinValue).html(craftedItem.sellMin ? craftedItem.sellMin.toString() : "0")
+                $(rangeSellMinValue).html(craftedItem.sellMin ? craftedItem.sellMin.toString() : configs.sellMinStepDefault)
 
                 $(rangeSellMin).css({
                     "height": "fit-content",
