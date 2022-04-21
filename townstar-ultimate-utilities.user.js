@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Townstar ultimate utilities
 // @namespace    http://tampermonkey.net/
-// @version      0.1.7
+// @version      0.1.6
 // @updateURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @downloadURL    https://tzanou123.github.io/js/townstar-ultimate-utilities.user.js
 // @description  A script for the town star gala game with a lot of features like auto sell a powerfull rate monitor and more ... it come with a pretty and easy to use interfaces
@@ -54,7 +54,7 @@
     // GM_setValue('configs', configs)
 
     console.log("lkdfjslfsdjkfsdjklfhsdjfghsdjkfh", GM_getValue('configs'))
-    if (!GM_getValue('configs')) {
+    if(!GM_getValue('configs')) {
         GM_setValue('configs', configs)
     } else {
         configs = GM_getValue('configs')
@@ -105,6 +105,7 @@
     addGlobalStyle('.dropotron > li.active > a, .dropotron > li:hover > a { color: #fff; }');
     addGlobalStyle('.dropotron.level-0 { margin-top: 1.25em; }');
     addGlobalStyle('.dropotron.level-0:before { content: ""; position: absolute; border-bottom: solid 0.5em #444; border-left: solid 0.5em transparent; border-right: solid 0.5em transparent; top: -0.5em; }');
+    addGlobalStyle('.ui-tooltip {box-shadow:none !important;}');
     //$('head').append('<style>.timeChoose .active {background: rgb(254, 94, 94);color: white;border-radius: 3px;}.timeChoose span {padding: 2px;font-size: 10px;margin-right: 8px;cursor: pointer}</style>');
 
     var cssNode = document.createElement("link");
@@ -164,15 +165,15 @@
 
     let isAutoSellActivated = true;
 
-    function addIcon({ iconClass, classes, tooltip, css, click }) {
+    function addIcon({iconClass, classes, tooltip, css, click}) {
         let icon = document.createElement('i');
-        if (classes)
+        if(classes)
             icon.classList.add(classes);
         icon.classList.add('fa-solid');
         icon.classList.add(iconClass);
-        if (tooltip)
+        if(tooltip)
             $(icon).attr("title", tooltip);
-        if (css)
+        if(css)
             $(icon).css(css);
 
         $(icon).hover(function () {
@@ -180,8 +181,8 @@
         }, function () {
             $(this).css("color", "rgb(254 94 94 / 65%)");
         });
-        if (click)
-            $(icon).click(click)
+        if(click)
+        $(icon).click(click)
         return icon
     }
 
@@ -189,19 +190,19 @@
     function hourChoose(item) {
         let hourChooseMoney = document.createElement('span');
         hourChooseMoney.innerHTML = '1h';
-        if (configs.getMoneyRateFrequency == 'hour')
+        if(configs.getMoneyRateFrequency == 'hour')
             hourChooseMoney.classList.add('in_active');
         let hourChoosePoint = document.createElement('span');
         hourChoosePoint.innerHTML = '1h';
-        if (configs.getPointRateFrequency == 'hour')
+        if(configs.getPointRateFrequency == 'hour')
             hourChooseMoney.classList.add('in_active');
 
         let dayChooseMoney = document.createElement('span');
-        if (configs.getMoneyRateFrequency == 'day')
+        if(configs.getMoneyRateFrequency == 'day')
             dayChooseMoney.classList.add('in_active');
         dayChooseMoney.innerHTML = '24h';
         let dayChoosePoint = document.createElement('span');
-        if (configs.getPointRateFrequency == 'day')
+        if(configs.getPointRateFrequency == 'day')
             dayChoosePoint.classList.add('in_active');
         dayChoosePoint.innerHTML = '24h';
 
@@ -209,32 +210,31 @@
 
         let weekChooseMoney = document.createElement('span');
         weekChooseMoney.innerHTML = '1w';
-        if (configs.getMoneyRateFrequency == 'week')
+        if(configs.getMoneyRateFrequency == 'week')
             weekChooseMoney.classList.add('in_active');
         let weekChoosePoint = document.createElement('span');
-        if (configs.getPointRateFrequency == 'week')
+        if(configs.getPointRateFrequency == 'week')
             weekChoosePoint.classList.add('in_active');
 
         weekChoosePoint.innerHTML = '1w';
 
         $(hourChooseMoney).click(function (e) {
             e.stopPropagation();
-            if (item) {
+            if(item) {
                 item.moneyRatePicked = 'hour'
                 $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneHourMoney, 2));
-                if (item.oneHourMoney <= 0) {
+                if(item.oneHourMoney <= 0) {
                     $('#tracked-item-money-' + item.item).css("color", "red")
                     $('#tracked-item-money-' + item.item).append(addIcon({
                         iconClass: "fa-circle-info",
                         tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                        css: {
+                        css : {
                             "color": "rgb(254 94 94 / 65%)",
                             "fontSize": "14px",
                             "marginLeft": "7px",
                             "position": "relative",
                             "top": "1px",
-                        }
-                    }))
+                        }}))
                 } else {
                     $('#tracked-item-money-' + item.item).css("color", "unset")
                 }
@@ -242,7 +242,7 @@
                 configs.getMoneyRateFrequency = 'hour'
                 GM_setValue('configs', configs)
             }
-
+            
             $(weekChooseMoney).removeClass("in_active")
             $(dayChooseMoney).removeClass("in_active")
             $(hourChooseMoney).addClass("in_active")
@@ -250,14 +250,14 @@
         })
         $(hourChoosePoint).click(function (e) {
             e.stopPropagation();
-            if (item) {
+            if(item) {
                 item.pointRatePicked = 'hour'
                 $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneHourPoint, 2));
             } else {
                 configs.getPointRateFrequency = 'hour'
                 GM_setValue('configs', configs)
             }
-
+            
             $(weekChoosePoint).removeClass("in_active")
             $(dayChoosePoint).removeClass("in_active")
             $(hourChoosePoint).addClass("in_active")
@@ -265,22 +265,21 @@
 
         $(dayChooseMoney).click(function (e) {
             e.stopPropagation();
-            if (item) {
+            if(item) {
                 item.moneyRatePicked = 'day'
                 $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneDayMoney, 2));
-                if (item.oneDayMoney <= 0) {
+                if(item.oneDayMoney <= 0) {
                     $('#tracked-item-money-' + item.item).css("color", "red")
                     $('#tracked-item-money-' + item.item).append(addIcon({
                         iconClass: "fa-circle-info",
                         tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                        css: {
+                        css : {
                             "color": "rgb(254 94 94 / 65%)",
                             "fontSize": "14px",
                             "marginLeft": "7px",
                             "position": "relative",
                             "top": "1px",
-                        }
-                    }))
+                        }}))
                 } else {
                     $('#tracked-item-money-' + item.item).css("color", "unset")
                 }
@@ -288,21 +287,21 @@
                 configs.getMoneyRateFrequency = 'day'
                 GM_setValue('configs', configs)
             }
-
+            
             $(weekChooseMoney).removeClass("in_active")
             $(dayChooseMoney).addClass("in_active")
             $(hourChooseMoney).removeClass("in_active")
         })
         $(dayChoosePoint).click(function (e) {
             e.stopPropagation();
-            if (item) {
+            if(item) {
                 item.pointRatePicked = 'day'
                 $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneDayPoint, 2));
             } else {
                 configs.getPointRateFrequency = 'day'
                 GM_setValue('configs', configs)
             }
-
+            
             $(weekChoosePoint).removeClass("in_active")
             $(dayChoosePoint).addClass("in_active")
             $(hourChoosePoint).removeClass("in_active")
@@ -310,22 +309,21 @@
 
         $(weekChooseMoney).click(function (e) {
             e.stopPropagation();
-            if (item) {
+            if(item) {
                 item.moneyRatePicked = 'week'
                 $('#tracked-item-money-' + item.item).html('money: $' + nFormatter(item.oneWeekMoney, 2));
-                if (item.oneWeekMoney <= 0) {
+                if(item.oneWeekMoney <= 0) {
                     $('#tracked-item-money-' + item.item).css("color", "red")
                     $('#tracked-item-money-' + item.item).append(addIcon({
                         iconClass: "fa-circle-info",
                         tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                        css: {
+                        css : {
                             "color": "rgb(254 94 94 / 65%)",
                             "fontSize": "14px",
                             "marginLeft": "7px",
                             "position": "relative",
                             "top": "1px",
-                        }
-                    }))
+                        }}))
                 } else {
                     $('#tracked-item-money-' + item.item).css("color", "unset")
                 }
@@ -333,21 +331,21 @@
                 configs.getMoneyRateFrequency = 'week'
                 GM_setValue('configs', configs)
             }
-
+            
             $(weekChooseMoney).addClass("in_active")
             $(dayChooseMoney).removeClass("in_active")
             $(hourChooseMoney).removeClass("in_active")
         })
         $(weekChoosePoint).click(function (e) {
             e.stopPropagation();
-            if (item) {
+            if(item) {
                 item.pointRatePicked = 'week'
                 $('#tracked-item-point-' + item.item).html('points: ' + nFormatter(item.oneWeekPoint, 2));
             } else {
                 configs.getPointRateFrequency = 'week'
                 GM_setValue('configs', configs)
             }
-
+            
             $(weekChoosePoint).addClass("in_active")
             $(dayChoosePoint).removeClass("in_active")
             $(hourChoosePoint).removeClass("in_active")
@@ -380,7 +378,7 @@
 
         let titleWithTooltipTooltip = document.createElement('i');
         titleWithTooltipTooltip.classList.add('fa-solid');
-        titleWithTooltipTooltip.classList.add(iconClass ? iconClass : 'fa-circle-info');
+        titleWithTooltipTooltip.classList.add(iconClass?iconClass:'fa-circle-info');
         $(titleWithTooltipTooltip).attr("title", tooltip);
         $(titleWithTooltipTooltip).css({
             "margin-left": "auto",
@@ -664,9 +662,9 @@
         $(autoSellStatusCont).append(optionMenu);
         document.querySelector('.hud').prepend(autoSellStatusCont);
         await WaitForElement('#autosell-status');
-        $('#main-nav > ul').dropotron({ hideDelay: 250, })
+        $('#main-nav > ul').dropotron({hideDelay: 250,})
         await WaitForElement('.dropotron.level-0');
-        $(".dropotron.level-1").click(function (e) { e.stopPropagation(); })
+        $(".dropotron.level-1").click(function(e) {e.stopPropagation();})
         $(autoSellStatusCont).css({
             "display": "flex",
         })
@@ -942,21 +940,20 @@
             let trackedItemElemMoney = document.createElement('span');
             trackedItemElemMoney.id = 'tracked-item-money-' + item.item;
             trackedItemElemMoney.style = 'width: 75%;';
-            let properFrequencyMoney = configs.getMoneyRateFrequency == 'hour' ? item.oneHourMoney : configs.getMoneyRateFrequency == 'day' ? item.oneDayMoney : item.oneWeekMoney
+            let properFrequencyMoney = configs.getMoneyRateFrequency == 'hour'?item.oneHourMoney:configs.getMoneyRateFrequency == 'day'?item.oneDayMoney:item.oneWeekMoney
             trackedItemElemMoney.innerHTML = 'money: $' + nFormatter(properFrequencyMoney, 2);
-            if (item.oneHourMoney <= 0) {
+            if(item.oneHourMoney <= 0) {
                 $(trackedItemElemMoney).css("color", "red")
                 $(trackedItemElemMoney).append(addIcon({
                     iconClass: "fa-circle-info",
                     tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                    css: {
+                    css : {
                         "color": "rgb(254 94 94 / 65%)",
                         "fontSize": "14px",
                         "marginLeft": "7px",
                         "position": "relative",
                         "top": "1px",
-                    }
-                }))
+                    }}))
             } else {
                 $(trackedItemElemMoney).css("color", "unset")
             }
@@ -969,7 +966,7 @@
             let trackedItemElemPoint = document.createElement('span');
             trackedItemElemPoint.id = 'tracked-item-point-' + item.item;
             trackedItemElemPoint.style = 'width: 75%;';
-            let properFrequencyPoint = configs.getPointRateFrequency == 'hour' ? item.oneHourPoint : configs.getPointRateFrequency == 'day' ? item.oneDayPoint : item.oneWeekPoint
+            let properFrequencyPoint = configs.getPointRateFrequency == 'hour'?item.oneHourPoint:configs.getPointRateFrequency == 'day'?item.oneDayPoint:item.oneWeekPoint
             trackedItemElemPoint.innerHTML = 'points: ' + nFormatter(properFrequencyPoint, 2);
             $(trackedItemElemPoint).css({
                 "fontSize": "12px",
@@ -1049,57 +1046,54 @@
                 }
                 GM_setValue('trackedRateItem', JSON.stringify(trackedItems))
                 $('#tracked-item-prod-rate-' + trackedItem.item).html(trackedItem.count + ' | ' + trackedItem.oneMin.toFixed(2) + ' | ' + trackedItem.oneHour.toFixed(2));
-                if (trackedItem.moneyRatePicked == 'hour') {
+                if (trackedItem.moneyRatePicked == 'hour'){
                     $('#tracked-item-money-' + trackedItem.item).html('money: $' + nFormatter(trackedItem.oneHourMoney, 2));
-                    if (trackedItem.oneHourMoney <= 0) {
+                    if(trackedItem.oneHourMoney <= 0) {
                         $('#tracked-item-money-' + trackedItem.item).css("color", "red")
                         $('#tracked-item-money-' + trackedItem.item).append(addIcon({
                             iconClass: "fa-circle-info",
                             tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                            css: {
+                            css : {
                                 "color": "rgb(254 94 94 / 65%)",
                                 "fontSize": "14px",
                                 "marginLeft": "7px",
                                 "position": "relative",
                                 "top": "1px",
-                            }
-                        }))
+                            }}))
                     } else {
                         $('#tracked-item-money-' + trackedItem.item).css("color", "unset")
                     }
                 } else if (trackedItem.moneyRatePicked == 'day') {
                     $('#tracked-item-money-' + trackedItem.item).html('money: $' + nFormatter(trackedItem.oneDayMoney, 2));
-                    if (trackedItem.oneDayMoney <= 0) {
+                    if(trackedItem.oneDayMoney <= 0) {
                         $('#tracked-item-money-' + trackedItem.item).css("color", "red")
                         $('#tracked-item-money-' + trackedItem.item).append(addIcon({
                             iconClass: "fa-circle-info",
                             tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                            css: {
+                            css : {
                                 "color": "rgb(254 94 94 / 65%)",
                                 "fontSize": "14px",
                                 "marginLeft": "7px",
                                 "position": "relative",
                                 "top": "1px",
-                            }
-                        }))
+                            }}))
                     } else {
                         $('#tracked-item-money-' + trackedItem.item).css("color", "unset")
                     }
                 } else if (trackedItem.moneyRatePicked == 'week') {
                     $('#tracked-item-money-' + trackedItem.item).html('money: $' + nFormatter(trackedItem.oneWeekMoney, 2));
-                    if (trackedItem.oneWeekMoney <= 0) {
+                    if(trackedItem.oneWeekMoney <= 0) {
                         $('#tracked-item-money-' + trackedItem.item).css("color", "red")
                         $('#tracked-item-money-' + trackedItem.item).append(addIcon({
                             iconClass: "fa-circle-info",
                             tooltip: "This item give less money than the town cost to you. If you sell only this item you will lose money",
-                            css: {
+                            css : {
                                 "color": "rgb(254 94 94 / 65%)",
                                 "fontSize": "14px",
                                 "marginLeft": "7px",
                                 "position": "relative",
                                 "top": "1px",
-                            }
-                        }))
+                            }}))
                     } else {
                         $('#tracked-item-money-' + trackedItem.item).css("color", "unset")
                     }
@@ -1586,7 +1580,7 @@
         }
         if (document.getElementById("playnow-container") && document.getElementById("playnow-container").style.visibility !== "hidden") {
             if (typeof Game == 'undefined' || (Game && Game.gameData == null)) {
-                window.location.reload();
+                // window.location.reload();
             } else {
                 document.getElementById("playButton").click();
                 console.log(Date.now() + ' ---===ACTIVATING AUTO SELL===---');
